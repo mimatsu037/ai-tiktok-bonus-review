@@ -300,6 +300,23 @@ h1 span {
   font: .9rem/1.75 Consolas, "Yu Gothic UI", monospace;
   white-space: pre-wrap;
 }
+.copy-panel.template-panel {
+  border-color: #e4c5bf;
+  background: #fff9f7;
+  box-shadow: 0 12px 30px rgba(124, 82, 92, .08);
+}
+.template-panel .copy-panel-head {
+  border-bottom-color: #e4c5bf;
+  color: #5b4550;
+  background: #f8e5e1;
+}
+.template-panel .copy-panel-head i { color: #c87576; }
+.template-panel .prompt-copy {
+  border-color: #d69b91;
+  color: #6d4653;
+  background: #fff;
+}
+.template-panel pre { color: #4f4148; }
 .document table { width: 100%; margin: 1.4rem 0; border-collapse: collapse; font-size: .93rem; }
 .document th, .document td { padding: .75rem; border: 1px solid #d7d9e2; text-align: left; vertical-align: top; }
 .document th { background: #f8efed; }
