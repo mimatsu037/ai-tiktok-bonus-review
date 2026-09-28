@@ -249,6 +249,28 @@ h1 .accent-line {
 .diagram-step strong { display: block; padding-right: .7rem; font-size: .94rem; line-height: 1.45; }
 .diagram-arrow { align-self: center; color: var(--pink); font-size: 1.25rem; font-weight: 900; }
 .bonus-diagram figcaption { position: relative; z-index: 1; margin-top: 1rem; color: #5f6474; font-size: .9rem; }
+.lesson-visual {
+  margin: 1.7rem 0 2rem;
+  overflow: hidden;
+  border: 1px solid #eadde1;
+  border-radius: 20px;
+  background: #fff;
+  box-shadow: 0 16px 36px rgba(100,66,79,.1);
+}
+.lesson-visual img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 2;
+  object-fit: cover;
+}
+.lesson-visual figcaption {
+  margin: 0;
+  padding: .85rem 1rem .95rem;
+  color: #715f69;
+  font-size: .9rem;
+  font-weight: 700;
+  line-height: 1.65;
+}
 .document h1 { margin: 0 0 2rem; color: var(--ink); font-size: clamp(2rem, 4vw, 3.4rem); line-height: 1.18; letter-spacing: -.035em; }
 .bonus-heading span { display: block; margin-bottom: .35rem; color: #858090; font-size: .34em; font-weight: 900; letter-spacing: .08em; }
 .bonus-heading strong { display: block; font: inherit; }
@@ -410,6 +432,8 @@ footer { display: flex; justify-content: space-between; gap: 2rem; padding: 2rem
   .document h1 { font-size: 2rem; line-height: 1.35; }
   .document h2 { margin-top: 2.2rem; font-size: 1.25rem; line-height: 1.55; }
   .document h3 { font-size: 1.08rem; line-height: 1.6; }
+  .lesson-visual { margin: 1.35rem 0 1.7rem; border-radius: 15px; }
+  .lesson-visual figcaption { padding: .75rem .85rem .85rem; font-size: .86rem; }
   .document h2 + ul, .document h3 + ul { grid-template-columns: 1fr; }
   .table-wrap { overflow: visible; border: 0; border-radius: 0; }
   .document table, .document tbody { display: block; width: 100%; }

@@ -168,6 +168,16 @@ function renderMarkdown(source) {
       continue;
     }
 
+    const imageBlock = line.match(/^!\[([^\]]*)\]\(([^\s)]+)(?:\s+"([^"]*)")?\)$/);
+    if (imageBlock) {
+      closeList();
+      const alt = escapeHtml(imageBlock[1]);
+      const src = escapeHtml(imageBlock[2]);
+      const caption = imageBlock[3] ? `<figcaption>${inline(imageBlock[3])}</figcaption>` : "";
+      html += `<figure class="lesson-visual"><img src="${src}" alt="${alt}" loading="lazy" decoding="async">${caption}</figure>`;
+      continue;
+    }
+
     const heading = line.match(/^(#{1,3})\s+(.+)$/);
     if (heading) {
       closeList();
