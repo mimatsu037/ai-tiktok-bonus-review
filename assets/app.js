@@ -41,6 +41,67 @@ function inline(text) {
     .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
 }
 
+function optimizeJapaneseLineBreaks(root) {
+  if (!("Segmenter" in Intl)) return;
+  const segmenter = new Intl.Segmenter("ja", { granularity: "word" });
+  const selectors = "p, li, td, th, blockquote, figcaption, h1, h2, h3, .diagram-step strong";
+  const particleEnd = /(から|まで|より|ので|のに|には|では|とは|へは|の|に|を|が|は|へ|と|で|も|や)$/;
+
+  root.querySelectorAll(selectors).forEach(element => {
+    if (element.closest("pre, code, button")) return;
+    const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+    const textNodes = [];
+    while (walker.nextNode()) textNodes.push(walker.currentNode);
+
+    textNodes.forEach(node => {
+      const value = node.nodeValue || "";
+      if (!/[ぁ-んァ-ヶ一-龠]/.test(value) || value.trim().length < 5) return;
+
+      const chunks = [];
+      let chunk = "";
+      const segments = Array.from(segmenter.segment(value));
+      for (let index = 0; index < segments.length; index += 1) {
+        const item = segments[index];
+        const part = item.segment;
+        const nextPart = (segments[index + 1]?.segment || "").trim();
+        const compactBefore = chunk.replace(/\s/g, "").length;
+        const startsNewTerm = /^[一-龠ァ-ヶA-Za-z0-9]/.test(part.trim());
+        if (compactBefore >= 7 && particleEnd.test(chunk.trim()) && startsNewTerm) {
+          chunks.push(chunk);
+          chunk = "";
+        }
+        const nextContinuesPhrase = /^[ぁ-ん]/.test(nextPart) || /^(から|まで|より|ので|のに|には|では|とは|へは|の|に|を|が|は|へ|と|で|も|や|・)$/.test(nextPart);
+        chunk += part;
+
+        const compactLength = chunk.replace(/\s/g, "").length;
+        const punctuationBreak = /[。！？]/.test(part) || (/[、：；]/.test(part) && compactLength >= 5);
+        const phraseBreak = compactLength >= 8 && item.isWordLike && !particleEnd.test(chunk.trim()) && !nextContinuesPhrase;
+        if (punctuationBreak || phraseBreak) {
+          chunks.push(chunk);
+          chunk = "";
+        }
+      }
+      if (chunk) chunks.push(chunk);
+      for (let index = chunks.length - 1; index > 0; index -= 1) {
+        if (/^[、。！？：；・）」』】]/.test(chunks[index].trimStart())) {
+          chunks[index - 1] += chunks[index];
+          chunks.splice(index, 1);
+        }
+      }
+      if (chunks.length < 2) return;
+
+      const fragment = document.createDocumentFragment();
+      chunks.forEach(part => {
+        const span = document.createElement("span");
+        span.className = "jp-phrase";
+        span.textContent = part;
+        fragment.appendChild(span);
+      });
+      node.replaceWith(fragment);
+    });
+  });
+}
+
 function renderDiagram(bonus) {
   const steps = bonus.steps.map((step, index) => `
     <div class="diagram-step">
@@ -102,12 +163,23 @@ function renderMarkdown(source) {
       }
       i -= 1;
       const usable = rows.filter((row, idx) => idx !== 1 || !row.every(cell => /^:?-+:?$/.test(cell)));
-      html += "<table>" + usable.map((row, rowIndex) => `<tr>${row.map(cell => rowIndex === 0 ? `<th>${inline(cell)}</th>` : `<td>${inline(cell)}</td>`).join("")}</tr>`).join("") + "</table>";
+      const labels = usable[0] || [];
+      html += '<div class="table-wrap"><table>' + usable.map((row, rowIndex) => `<tr>${row.map((cell, cellIndex) => rowIndex === 0 ? `<th>${inline(cell)}</th>` : `<td data-label="${escapeHtml(labels[cellIndex] || "項目")}">${inline(cell)}</td>`).join("")}</tr>`).join("") + "</table></div>";
       continue;
     }
 
     const heading = line.match(/^(#{1,3})\s+(.+)$/);
-    if (heading) { closeList(); const level = heading[1].length; html += `<h${level}>${inline(heading[2])}</h${level}>`; continue; }
+    if (heading) {
+      closeList();
+      const level = heading[1].length;
+      const titleParts = level === 1 ? heading[2].split("｜") : [];
+      if (titleParts.length === 2) {
+        html += `<h1 class="bonus-heading"><span>${inline(titleParts[0])}</span><strong>${inline(titleParts[1])}</strong></h1>`;
+      } else {
+        html += `<h${level}>${inline(heading[2])}</h${level}>`;
+      }
+      continue;
+    }
     const ordered = line.match(/^\d+\.\s+(.+)$/);
     const unordered = line.match(/^[-*]\s+(.+)$/);
     if (ordered || unordered) {
@@ -173,6 +245,7 @@ async function openBonus(index, updateHash = true) {
     if (!response.ok) throw new Error("load failed");
     const markdown = await response.text();
     documentRoot.innerHTML = renderDiagram(bonus) + renderMarkdown(markdown);
+    optimizeJapaneseLineBreaks(documentRoot);
     attachPromptCopyButtons();
     if (updateHash) history.replaceState(null, "", `#${bonus.id}`);
     if (updateHash) document.querySelector("#reader").scrollIntoView({ behavior: "smooth", block: "start" });
