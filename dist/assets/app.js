@@ -1,14 +1,14 @@
 const bonuses = [
-  { id: "01", glyph: "診", format: "診断＋AI壁打ち", short: "わたし向きジャンル診断", file: "01_ジャンルAI診断.md", image: "assets/cards/bonus-01-v2.png", visualTitle: "得意・暮らし・続けやすさから方向性を見つける", steps: [["CHECK", "今の自分を棚卸し"], ["NOTICE", "相性のよい方向を発見"], ["NEXT", "試すテーマを1つ選ぶ"]], note: "正解を決める診断ではなく、発信テーマを考える入口として使います。" },
-  { id: "02", glyph: "選", format: "商品比較シート", short: "商品選びチェックシート", file: "02_AI商品選定リサーチ.md", image: "assets/cards/bonus-02-v2.png", visualTitle: "紹介しやすさを5つの視点で比べてみる", steps: [["LIST", "候補を3つ並べる"], ["CHECK", "5項目を○△×で確認"], ["TRY", "まず1商品を観察"]], note: "売れる商品を断定せず、自分が誠実に紹介できる候補を見つけます。" },
-  { id: "03", glyph: "観", format: "観察＋AI分析", short: "伸びる動画の観察ワーク", file: "03_競合バズ動画AI分析.md", image: "assets/cards/bonus-03-v2.png", visualTitle: "なんとなく見るを、気づける観察に変える", steps: [["WATCH", "1本だけ丁寧に見る"], ["MEMO", "3つの場面を記録"], ["NOTICE", "気づきを1つ残す"]], note: "答え合わせではなく、自分の見る力を育てるためのミニワークです。" },
-  { id: "04", glyph: "掴", format: "見本帳", short: "3秒フック見本帳", file: "04_TikTokバズフック100選.md", image: "assets/cards/bonus-04-v2.png", visualTitle: "伝え方の違いを見比べて、自分の言葉にする", steps: [["PICK", "5タイプから選ぶ"], ["ARRANGE", "自分の体験に置き換える"], ["TEST", "1案だけ試してみる"]], note: "完成文をそのまま使わず、誠実な自分の言葉へ整える見本帳です。" },
-  { id: "05", glyph: "台", format: "台本＋AI添削", short: "伝わる台本キャンバス", file: "05_売れるTikTok台本AIメーカー.md", image: "assets/cards/bonus-05-v2.png", visualTitle: "伝えたいことを4つの枠に整理する", steps: [["FACT", "事実と体験を分ける"], ["STORY", "4つの枠に配置"], ["TALK", "自分の言葉で話す"]], note: "自動完成ではなく、添削しやすい台本のたたき台を作ります。" },
-  { id: "06", glyph: "撮", format: "撮影レシピ", short: "顔出しなし撮影レシピ", file: "06_顔出し不要_勝ちパターン10選.md", image: "assets/cards/bonus-06-v2.png", visualTitle: "手元と商品の見せ方を、5つのレシピから選ぶ", steps: [["STYLE", "無理のない撮り方を選ぶ"], ["SHOT", "必要な3カットを確認"], ["TRY", "15秒だけ撮ってみる"]], note: "機材よりも、商品の使い方が見えることを大切にします。" },
-  { id: "07", glyph: "週", format: "週間プランナー", short: "週末60分プランナー", file: "07_週末60分_動画量産プロンプト.md", image: "assets/cards/bonus-07-v2.png", visualTitle: "たくさん作るより、続けられる3本を計画する", steps: [["CHOOSE", "今週のテーマを1つ"], ["PLAN", "3本の役割を分ける"], ["BLOCK", "60分の予定を確保"]], note: "7本の自動量産ではなく、無理のない投稿リズムを作るプランナーです。" },
-  { id: "08", glyph: "誘", format: "フレーズ50選", short: "自然なCTAフレーズ50選", file: "08_売り込み感ゼロ_CTA50選.md", image: "assets/cards/bonus-08-v2.png", visualTitle: "押しつけず、次の一歩をそっと案内する", steps: [["GOAL", "投稿の目的を選ぶ"], ["PHRASE", "5タイプを見比べる"], ["TONE", "自分の話し方に整える"]], note: "売るための決め台詞ではなく、視聴者の判断を助ける言葉を集めました。" },
-  { id: "09", glyph: "見", format: "早見表＋AI診断", short: "数字の見方・早見表", file: "09_数字を貼るだけ_AI改善診断.md", image: "assets/cards/bonus-09-v2.png", visualTitle: "数字を評価ではなく、次のヒントとして読む", steps: [["OBSERVE", "まず事実だけを見る"], ["GUESS", "仮説は1つに絞る"], ["TEST", "次の投稿で確かめる"]], note: "数字だけで原因を断定せず、添削や検証につなげるための早見表です。" },
-  { id: "10", glyph: "歩", format: "行動マップ", short: "初めの7日間ロードマップ", file: "10_30日_初成果ロードマップ.md", image: "assets/cards/bonus-10-v2.png", visualTitle: "完成を急がず、最初の一週間で土台を作る", steps: [["DAY 1–2", "方向性を仮決め"], ["DAY 3–5", "観察と小さな準備"], ["DAY 6–7", "相談できる形にする"]], note: "ひとりで30日を走り切る計画ではなく、伴走を受ける準備を整えます。" }
+  { id: "01", glyph: "診", format: "診断＋AI壁打ち", short: "わたし向きジャンル診断", titleParts: ["わたし向き", "ジャンル診断"], file: "01_ジャンルAI診断.md", image: "assets/cards/bonus-01-v2.png", visualTitle: "得意・暮らし・続けやすさから方向性を見つける", steps: [["CHECK", "今の自分を棚卸し"], ["NOTICE", "相性のよい方向を発見"], ["NEXT", "試すテーマを1つ選ぶ"]], note: "正解を決める診断ではなく、発信テーマを考える入口として使います。" },
+  { id: "02", glyph: "選", format: "商品比較シート", short: "商品選びチェックシート", titleParts: ["商品選び", "チェックシート"], file: "02_AI商品選定リサーチ.md", image: "assets/cards/bonus-02-v2.png", visualTitle: "紹介しやすさを5つの視点で比べてみる", steps: [["LIST", "候補を3つ並べる"], ["CHECK", "5項目を○△×で確認"], ["TRY", "まず1商品を観察"]], note: "売れる商品を断定せず、自分が誠実に紹介できる候補を見つけます。" },
+  { id: "03", glyph: "観", format: "観察＋AI分析", short: "伸びる動画の観察ワーク", titleParts: ["伸びる動画の", "観察ワーク"], file: "03_競合バズ動画AI分析.md", image: "assets/cards/bonus-03-v2.png", visualTitle: "なんとなく見るを、気づける観察に変える", steps: [["WATCH", "1本だけ丁寧に見る"], ["MEMO", "3つの場面を記録"], ["NOTICE", "気づきを1つ残す"]], note: "答え合わせではなく、自分の見る力を育てるためのミニワークです。" },
+  { id: "04", glyph: "掴", format: "見本帳", short: "3秒フック見本帳", titleParts: ["3秒フック", "見本帳"], file: "04_TikTokバズフック100選.md", image: "assets/cards/bonus-04-v2.png", visualTitle: "伝え方の違いを見比べて、自分の言葉にする", steps: [["PICK", "5タイプから選ぶ"], ["ARRANGE", "自分の体験に置き換える"], ["TEST", "1案だけ試してみる"]], note: "完成文をそのまま使わず、誠実な自分の言葉へ整える見本帳です。" },
+  { id: "05", glyph: "台", format: "台本＋AI添削", short: "伝わる台本キャンバス", titleParts: ["伝わる台本", "キャンバス"], file: "05_売れるTikTok台本AIメーカー.md", image: "assets/cards/bonus-05-v2.png", visualTitle: "伝えたいことを4つの枠に整理する", steps: [["FACT", "事実と体験を分ける"], ["STORY", "4つの枠に配置"], ["TALK", "自分の言葉で話す"]], note: "自動完成ではなく、添削しやすい台本のたたき台を作ります。" },
+  { id: "06", glyph: "撮", format: "撮影レシピ", short: "顔出しなし撮影レシピ", titleParts: ["顔出しなし", "撮影レシピ"], file: "06_顔出し不要_勝ちパターン10選.md", image: "assets/cards/bonus-06-v2.png", visualTitle: "手元と商品の見せ方を、5つのレシピから選ぶ", steps: [["STYLE", "無理のない撮り方を選ぶ"], ["SHOT", "必要な3カットを確認"], ["TRY", "15秒だけ撮ってみる"]], note: "機材よりも、商品の使い方が見えることを大切にします。" },
+  { id: "07", glyph: "週", format: "週間プランナー", short: "週末60分プランナー", titleParts: ["週末60分", "プランナー"], file: "07_週末60分_動画量産プロンプト.md", image: "assets/cards/bonus-07-v2.png", visualTitle: "たくさん作るより、続けられる3本を計画する", steps: [["CHOOSE", "今週のテーマを1つ"], ["PLAN", "3本の役割を分ける"], ["BLOCK", "60分の予定を確保"]], note: "7本の自動量産ではなく、無理のない投稿リズムを作るプランナーです。" },
+  { id: "08", glyph: "誘", format: "フレーズ50選", short: "自然なCTAフレーズ50選", titleParts: ["自然なCTA", "フレーズ50選"], file: "08_売り込み感ゼロ_CTA50選.md", image: "assets/cards/bonus-08-v2.png", visualTitle: "押しつけず、次の一歩をそっと案内する", steps: [["GOAL", "投稿の目的を選ぶ"], ["PHRASE", "5タイプを見比べる"], ["TONE", "自分の話し方に整える"]], note: "売るための決め台詞ではなく、視聴者の判断を助ける言葉を集めました。" },
+  { id: "09", glyph: "見", format: "早見表＋AI診断", short: "数字の見方・早見表", titleParts: ["数字の見方", "早見表"], file: "09_数字を貼るだけ_AI改善診断.md", image: "assets/cards/bonus-09-v2.png", visualTitle: "数字を評価ではなく、次のヒントとして読む", steps: [["OBSERVE", "まず事実だけを見る"], ["GUESS", "仮説は1つに絞る"], ["TEST", "次の投稿で確かめる"]], note: "数字だけで原因を断定せず、添削や検証につなげるための早見表です。" },
+  { id: "10", glyph: "歩", format: "行動マップ", short: "初めの7日間ロードマップ", titleParts: ["初めの7日間", "ロードマップ"], file: "10_30日_初成果ロードマップ.md", image: "assets/cards/bonus-10-v2.png", visualTitle: "完成を急がず、最初の一週間で土台を作る", steps: [["DAY 1–2", "方向性を仮決め"], ["DAY 3–5", "観察と小さな準備"], ["DAY 6–7", "相談できる形にする"]], note: "ひとりで30日を走り切る計画ではなく、伴走を受ける準備を整えます。" }
 ];
 
 const list = document.querySelector("#bonus-list");
@@ -25,7 +25,8 @@ bonuses.forEach((bonus, index) => {
   button.className = "bonus-card";
   button.type = "button";
   button.dataset.index = index;
-  button.innerHTML = `<span class="card-media"><img src="${bonus.image}" alt="" loading="lazy"><span class="card-shade"></span><span class="bonus-number">BONUS ${bonus.id}</span><span class="bonus-icon" aria-hidden="true">${bonus.glyph}</span></span><span class="card-copy"><small class="bonus-format">${bonus.format}</small><span class="bonus-title">${bonus.short}</span><span class="bonus-summary">${bonus.visualTitle}</span><span class="card-cta">中身を見る <b aria-hidden="true">→</b></span></span>`;
+  const titleLines = bonus.titleParts.map(part => `<span>${part}</span>`).join("");
+  button.innerHTML = `<span class="card-media"><img src="${bonus.image}" alt="" loading="lazy"><span class="card-shade"></span><span class="bonus-number">BONUS ${bonus.id}</span><span class="card-overlay"><small>${bonus.format}</small><strong>${titleLines}</strong><em>${bonus.visualTitle}</em></span></span><span class="card-cta">中身を見る <b aria-hidden="true">→</b></span>`;
   button.addEventListener("click", () => openBonus(index));
   list.appendChild(button);
 });
@@ -80,7 +81,11 @@ function renderMarkdown(source) {
         const isPrompt = codeKind === "prompt";
         const panelLabel = isPrompt ? "AIへの相談プロンプト" : "書き込み用テンプレート";
         const buttonLabel = isPrompt ? "プロンプトをコピー" : "テンプレートをコピー";
-        html += `<section class="copy-panel ${isPrompt ? "prompt-panel" : "template-panel"}"><div class="copy-panel-head"><span><i aria-hidden="true">✦</i> ${panelLabel}</span><button class="prompt-copy" type="button">${buttonLabel}</button></div><pre><code>${escapeHtml(code.join("\n"))}</code></pre></section>`;
+        if (isPrompt) {
+          html += `<details class="copy-panel prompt-panel"><summary><span><i aria-hidden="true">✦</i> AIプロンプトを見る</span><span class="prompt-toggle">表示する ＋</span></summary><div class="copy-panel-body"><div class="copy-actions"><button class="prompt-copy" type="button">${buttonLabel}</button></div><pre><code>${escapeHtml(code.join("\n"))}</code></pre></div></details>`;
+        } else {
+          html += `<section class="copy-panel template-panel"><div class="copy-panel-head"><span><i aria-hidden="true">✦</i> ${panelLabel}</span><button class="prompt-copy" type="button">${buttonLabel}</button></div><pre><code>${escapeHtml(code.join("\n"))}</code></pre></section>`;
+        }
         inCode = false;
       }
       continue;
@@ -138,6 +143,12 @@ async function copyText(text, successMessage) {
 }
 
 function attachPromptCopyButtons() {
+  documentRoot.querySelectorAll(".prompt-panel").forEach(panel => {
+    panel.addEventListener("toggle", () => {
+      const label = panel.querySelector(".prompt-toggle");
+      if (label) label.textContent = panel.open ? "閉じる −" : "表示する ＋";
+    });
+  });
   documentRoot.querySelectorAll(".prompt-copy").forEach(button => {
     button.addEventListener("click", () => {
       const code = button.closest(".copy-panel")?.querySelector("code")?.textContent || "";
