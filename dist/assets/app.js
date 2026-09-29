@@ -183,30 +183,9 @@ function renderMarkdown(source) {
 }
 
 function formatJapaneseText(root) {
-  const segmenter = typeof Intl !== "undefined" && Intl.Segmenter
-    ? new Intl.Segmenter("ja", { granularity: "word" })
-    : null;
   const selector = "h1, h2, h3, p, li, th, td, blockquote, figcaption, .diagram-step strong";
-  const bindToPrevious = new Set([
-    "は", "が", "を", "に", "へ", "と", "で", "も", "の", "や", "か", "ね", "よ",
-    "から", "まで", "より", "だけ", "ほど", "くらい", "ぐらい", "など", "しか", "こそ", "さえ",
-    "なら", "ので", "のに", "ても", "でも", "って", "という", "たり", "だり",
-    "です", "ます", "でした", "ました", "ません", "ない", "なく", "たい", "た", "て", "だ"
-  ]);
-  const counters = /^(?:秒|分|時間|本|枚|日|週|問|種|つ|人|回|項目|カット)$/;
-  const shouldMerge = (previous, next) => {
-    const left = previous.replace(/[、。！？…）」』】〉]+$/g, "");
-    const right = next.replace(/^[「『【〈（]+/g, "");
-    if (/^[「『【〈（]+$/.test(previous)) return true;
-    if (bindToPrevious.has(right)) return true;
-    if (/^[ァ-ヶー]+$/.test(left) && /^[ァ-ヶー]+$/.test(right)) return true;
-    if (/\d$/.test(left) && (counters.test(right) || /^[ァ-ヶー]+$/.test(right))) return true;
-    if (/[一-龠々]$/.test(left) && /^[ぁ-ん]+$/.test(right)) return true;
-    if (/[ぁ-ん]$/.test(left) && /^[ぁ-ん]+$/.test(right) && `${left}${right}`.length <= 10) return true;
-    if (/[一-龠々]/.test(left) && /[ぁ-ん]$/.test(left) && /^[一-龠々]+$/.test(right) && `${left}${right}`.length <= 6) return true;
-    if (/^[一-龠々]+$/.test(left) && /^[一-龠々]+$/.test(right) && `${left}${right}`.length <= 6) return true;
-    return false;
-  };
+  const quotePattern = /(「[^」]*」|『[^』]*』)/g;
+  const quoteSuffixPattern = /^(ことではなく|ではなく|という|では|とは|には|から|まで|より|だけ|は|が|を|に|へ|と|で|も|の|や)/;
   root.querySelectorAll(selector).forEach(element => {
     if (element.closest("pre, code, textarea, button, .rating-group")) return;
     const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
@@ -218,37 +197,24 @@ function formatJapaneseText(root) {
       const sentences = value.match(/[^。]*。|[^。]+/g) || [value];
       const fragment = document.createDocumentFragment();
       sentences.forEach((sentence, sentenceIndex) => {
-        const pieces = segmenter ? Array.from(segmenter.segment(sentence), item => item.segment) : [sentence];
-        const units = [];
-        pieces.forEach(piece => {
-          if (!piece.trim()) { units.push(piece); return; }
-          const previous = units.at(-1);
-          if (previous && previous.trim() && (/^[、。！？…）」』】〉：:・→]+$/.test(piece) || shouldMerge(previous, piece))) {
-            units[units.length - 1] += piece;
-          } else {
-            units.push(piece);
+        const parts = sentence.split(quotePattern).filter(Boolean);
+        parts.forEach((part, partIndex) => {
+          if (!/^(?:「[^」]*」|『[^』]*』)$/.test(part)) {
+            fragment.appendChild(document.createTextNode(part));
+            return;
           }
-        });
-        const phrases = [];
-        let phrase = "";
-        const visibleLength = value => Array.from(value.replace(/\s/g, "")).length;
-        const flushPhrase = () => {
-          if (phrase) phrases.push(phrase);
-          phrase = "";
-        };
-        units.forEach(piece => {
-          if (!piece.trim()) { phrase += piece; return; }
-          const combined = phrase + piece;
-          if (phrase.trim() && visibleLength(phrase) >= 4 && visibleLength(combined) > 8) flushPhrase();
-          phrase += piece;
-        });
-        flushPhrase();
-        phrases.forEach(piece => {
-          if (!piece.trim()) return;
-          const word = document.createElement("span");
-          word.className = "jp-word";
-          word.textContent = piece;
-          fragment.appendChild(word);
+
+          let quoteText = part;
+          const following = parts[partIndex + 1] || "";
+          const suffix = following.match(quoteSuffixPattern)?.[0] || "";
+          if (suffix && Array.from(`${quoteText}${suffix}`).length <= 18) {
+            quoteText += suffix;
+            parts[partIndex + 1] = following.slice(suffix.length);
+          }
+          const quote = document.createElement("span");
+          quote.className = `jp-quote${Array.from(quoteText).length > 18 ? " is-long" : ""}`;
+          quote.textContent = quoteText;
+          fragment.appendChild(quote);
         });
         if (sentence.endsWith("。") && sentenceIndex < sentences.length - 1) {
           const lineBreak = document.createElement("br");
@@ -257,6 +223,19 @@ function formatJapaneseText(root) {
         }
       });
       node.replaceWith(fragment);
+    });
+    element.querySelectorAll("strong").forEach(strong => {
+      const next = strong.nextSibling;
+      if (!next || next.nodeType !== Node.TEXT_NODE) return;
+      const match = (next.nodeValue || "").match(/^(\s*)(ではなく|という|では|とは|には|から|まで|より|だけ|は|が|を|に|へ|と|で|も|の|や)/);
+      if (!match) return;
+      const particle = document.createElement("span");
+      particle.textContent = `${match[1]}${match[2]}`;
+      next.nodeValue = (next.nodeValue || "").slice(match[0].length);
+      const inlineBind = document.createElement("span");
+      inlineBind.className = "inline-bind";
+      strong.before(inlineBind);
+      inlineBind.append(strong, particle);
     });
     if (element.tagName === "H2" && element.parentElement === root && !element.querySelector(":scope > .heading-copy")) {
       const headingCopy = document.createElement("span");
@@ -387,7 +366,7 @@ async function openBonus(index, updateHash = true) {
   prevButton.disabled = index === 0;
   nextButton.disabled = index === bonuses.length - 1;
   try {
-    const response = await fetch(`content/${encodeURIComponent(bonus.file)}`);
+    const response = await fetch(`content/${encodeURIComponent(bonus.file)}`, { cache: "no-store" });
     if (!response.ok) throw new Error("load failed");
     const markdown = await response.text();
     documentRoot.innerHTML = renderDiagram(bonus) + renderMarkdown(markdown);
