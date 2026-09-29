@@ -395,7 +395,33 @@ h1 .accent-line {
 .document tr:last-child td { border-bottom: 0; }
 .document th:last-child, .document td:last-child { border-right: 0; }
 .document th { background: #f8efed; }
-.empty-cell { color: #a99aa2; font-size: .82rem; }
+.jp-word {
+  display: inline-block;
+  max-width: 100%;
+  white-space: nowrap;
+}
+.sentence-break { display: block; }
+.note-input {
+  display: block;
+  width: 100%;
+  min-height: 4.5rem;
+  padding: .7rem .75rem;
+  border: 1px solid #e3d7da;
+  border-radius: 10px;
+  color: #4f4148;
+  background: #fff;
+  font: inherit;
+  font-size: 16px;
+  line-height: 1.65;
+  resize: vertical;
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+.note-input::placeholder { color: #ae9ea5; }
+.note-input:focus {
+  border-color: var(--cyan);
+  box-shadow: 0 0 0 3px rgba(105,191,193,.16);
+  outline: none;
+}
 .rating-group { display: flex; gap: .35rem; }
 .rating-group button {
   display: grid;
