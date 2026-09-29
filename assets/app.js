@@ -2,7 +2,7 @@ const bonuses = [
   { id: "01", glyph: "診", format: "診断＋AI壁打ち", short: "わたし向きジャンル診断", titleParts: ["わたし向き", "ジャンル診断"], file: "01_ジャンルAI診断.md", image: "assets/cards/bonus-01-v2.png", visualTitle: "得意・暮らし・続けやすさから方向性を見つける", steps: [["CHECK", "今の自分を棚卸し"], ["NOTICE", "相性のよい方向を発見"], ["NEXT", "試すテーマを1つ選ぶ"]], note: "正解を決める診断ではなく、発信テーマを考える入口として使います。" },
   { id: "02", glyph: "選", format: "商品比較シート", short: "商品選びチェックシート", titleParts: ["商品選び", "チェックシート"], file: "02_AI商品選定リサーチ.md", image: "assets/cards/bonus-02-v2.png", visualTitle: "紹介しやすさを5つの視点で比べてみる", steps: [["LIST", "候補を3つ並べる"], ["CHECK", "5項目を○△×で確認"], ["TRY", "まず1商品を観察"]], note: "売れる商品を断定せず、[br]自分が誠実に紹介できる候補を見つけます。" },
   { id: "03", glyph: "観", format: "観察＋AI分析", short: "伸びる動画の観察ワーク", titleParts: ["伸びる動画の", "観察ワーク"], file: "03_競合バズ動画AI分析.md", image: "assets/cards/bonus-03-v2.png", visualTitle: "なんとなく見るを、気づける観察に変える", steps: [["WATCH", "1本だけ丁寧に見る"], ["MEMO", "3つの場面を記録"], ["NOTICE", "気づきを1つ残す"]], note: "答え合わせではなく、[br]自分の見る力を育てるためのミニワークです。" },
-  { id: "04", glyph: "掴", format: "見本帳", short: "3秒フック見本帳", titleParts: ["3秒フック", "見本帳"], file: "04_TikTokバズフック100選.md", image: "assets/cards/bonus-04-v2.png", visualTitle: "伝え方の違いを見比べて、自分の言葉にする", steps: [["PICK", "5タイプから選ぶ"], ["ARRANGE", "自分の体験に置き換える"], ["TEST", "1案だけ試してみる"]], note: "完成文をそのまま使わず、誠実な自分の言葉へ整える見本帳です。" },
+  { id: "04", glyph: "掴", format: "見本帳", short: "3秒フック見本帳", titleParts: ["3秒フック", "見本帳"], file: "04_TikTokバズフック100選.md", image: "assets/cards/bonus-04-v2.png", visualTitle: "伝え方の違いを見比べて、[br]自分の言葉にする", steps: [["PICK", "5タイプから選ぶ"], ["ARRANGE", "自分の体験に置き換える"], ["TEST", "1案だけ試してみる"]], note: "完成文をそのまま使わず、[br]誠実な自分の言葉へ整える見本帳です。" },
   { id: "05", glyph: "台", format: "台本＋AI添削", short: "伝わる台本キャンバス", titleParts: ["伝わる台本", "キャンバス"], file: "05_売れるTikTok台本AIメーカー.md", image: "assets/cards/bonus-05-v2.png", visualTitle: "伝えたいことを4つの枠に整理する", steps: [["FACT", "事実と体験を分ける"], ["STORY", "4つの枠に配置"], ["TALK", "自分の言葉で話す"]], note: "自動完成ではなく、添削しやすい台本のたたき台を作ります。" },
   { id: "06", glyph: "撮", format: "撮影レシピ", short: "顔出しなし撮影レシピ", titleParts: ["顔出しなし", "撮影レシピ"], file: "06_顔出し不要_勝ちパターン10選.md", image: "assets/cards/bonus-06-v2.png", visualTitle: "手元と商品の見せ方を、5つのレシピから選ぶ", steps: [["STYLE", "無理のない撮り方を選ぶ"], ["SHOT", "必要な3カットを確認"], ["TRY", "15秒だけ撮ってみる"]], note: "機材よりも、商品の使い方が見えることを大切にします。" },
   { id: "07", glyph: "週", format: "週間プランナー", short: "週末60分プランナー", titleParts: ["週末60分", "プランナー"], file: "07_週末60分_動画量産プロンプト.md", image: "assets/cards/bonus-07-v2.png", visualTitle: "たくさん作るより、続けられる3本を計画する", steps: [["CHOOSE", "今週のテーマを1つ"], ["PLAN", "3本の役割を分ける"], ["BLOCK", "60分の予定を確保"]], note: "7本の自動量産ではなく、無理のない投稿リズムを作るプランナーです。" },
@@ -26,7 +26,7 @@ bonuses.forEach((bonus, index) => {
   button.type = "button";
   button.dataset.index = index;
   const titleLines = bonus.titleParts.map(part => `<span>${part}</span>`).join("");
-  button.innerHTML = `<span class="card-media"><img src="${bonus.image}" alt="" loading="lazy"><span class="card-shade"></span><span class="bonus-number">BONUS ${bonus.id}</span><span class="card-overlay"><small>${bonus.format}</small><strong>${titleLines}</strong><em>${bonus.visualTitle}</em></span></span><span class="card-cta">中身を見る <b aria-hidden="true">→</b></span>`;
+  button.innerHTML = `<span class="card-media"><img src="${bonus.image}" alt="" loading="lazy"><span class="card-shade"></span><span class="bonus-number">BONUS ${bonus.id}</span><span class="card-overlay"><small>${bonus.format}</small><strong>${titleLines}</strong><em>${inline(bonus.visualTitle)}</em></span></span><span class="card-cta">中身を見る <b aria-hidden="true">→</b></span>`;
   button.addEventListener("click", () => openBonus(index));
   list.appendChild(button);
 });
@@ -53,7 +53,7 @@ function renderDiagram(bonus) {
   return `<figure class="bonus-diagram">
     <div class="diagram-title-row">
       <span class="diagram-glyph" aria-hidden="true">${bonus.glyph}</span>
-      <div><p>AT A GLANCE / 特典${bonus.id}</p><h2>${bonus.visualTitle}</h2></div>
+      <div><p>AT A GLANCE / 特典${bonus.id}</p><h2>${inline(bonus.visualTitle)}</h2></div>
     </div>
     <div class="diagram-flow">${steps}</div>
     <figcaption>${inline(bonus.note)}</figcaption>
