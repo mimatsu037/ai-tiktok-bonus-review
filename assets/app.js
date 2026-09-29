@@ -1,6 +1,6 @@
 const bonuses = [
   { id: "01", glyph: "診", format: "診断＋AI壁打ち", short: "わたし向きジャンル診断", titleParts: ["わたし向き", "ジャンル診断"], file: "01_ジャンルAI診断.md", image: "assets/cards/bonus-01-v2.png", visualTitle: "得意・暮らし・続けやすさから方向性を見つける", steps: [["CHECK", "今の自分を棚卸し"], ["NOTICE", "相性のよい方向を発見"], ["NEXT", "試すテーマを1つ選ぶ"]], note: "正解を決める診断ではなく、発信テーマを考える入口として使います。" },
-  { id: "02", glyph: "選", format: "商品比較シート", short: "商品選びチェックシート", titleParts: ["商品選び", "チェックシート"], file: "02_AI商品選定リサーチ.md", image: "assets/cards/bonus-02-v2.png", visualTitle: "紹介しやすさを5つの視点で比べてみる", steps: [["LIST", "候補を3つ並べる"], ["CHECK", "5項目を○△×で確認"], ["TRY", "まず1商品を観察"]], note: "売れる商品を断定せず、自分が誠実に紹介できる候補を見つけます。" },
+  { id: "02", glyph: "選", format: "商品比較シート", short: "商品選びチェックシート", titleParts: ["商品選び", "チェックシート"], file: "02_AI商品選定リサーチ.md", image: "assets/cards/bonus-02-v2.png", visualTitle: "紹介しやすさを5つの視点で比べてみる", steps: [["LIST", "候補を3つ並べる"], ["CHECK", "5項目を○△×で確認"], ["TRY", "まず1商品を観察"]], note: "売れる商品を断定せず、[br]自分が誠実に紹介できる候補を見つけます。" },
   { id: "03", glyph: "観", format: "観察＋AI分析", short: "伸びる動画の観察ワーク", titleParts: ["伸びる動画の", "観察ワーク"], file: "03_競合バズ動画AI分析.md", image: "assets/cards/bonus-03-v2.png", visualTitle: "なんとなく見るを、気づける観察に変える", steps: [["WATCH", "1本だけ丁寧に見る"], ["MEMO", "3つの場面を記録"], ["NOTICE", "気づきを1つ残す"]], note: "答え合わせではなく、自分の見る力を育てるためのミニワークです。" },
   { id: "04", glyph: "掴", format: "見本帳", short: "3秒フック見本帳", titleParts: ["3秒フック", "見本帳"], file: "04_TikTokバズフック100選.md", image: "assets/cards/bonus-04-v2.png", visualTitle: "伝え方の違いを見比べて、自分の言葉にする", steps: [["PICK", "5タイプから選ぶ"], ["ARRANGE", "自分の体験に置き換える"], ["TEST", "1案だけ試してみる"]], note: "完成文をそのまま使わず、誠実な自分の言葉へ整える見本帳です。" },
   { id: "05", glyph: "台", format: "台本＋AI添削", short: "伝わる台本キャンバス", titleParts: ["伝わる台本", "キャンバス"], file: "05_売れるTikTok台本AIメーカー.md", image: "assets/cards/bonus-05-v2.png", visualTitle: "伝えたいことを4つの枠に整理する", steps: [["FACT", "事実と体験を分ける"], ["STORY", "4つの枠に配置"], ["TALK", "自分の言葉で話す"]], note: "自動完成ではなく、添削しやすい台本のたたき台を作ります。" },
@@ -56,7 +56,7 @@ function renderDiagram(bonus) {
       <div><p>AT A GLANCE / 特典${bonus.id}</p><h2>${bonus.visualTitle}</h2></div>
     </div>
     <div class="diagram-flow">${steps}</div>
-    <figcaption>${bonus.note}</figcaption>
+    <figcaption>${inline(bonus.note)}</figcaption>
   </figure>`;
 }
 
