@@ -41,67 +41,6 @@ function inline(text) {
     .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
 }
 
-function optimizeJapaneseLineBreaks(root) {
-  if (!("Segmenter" in Intl)) return;
-  const segmenter = new Intl.Segmenter("ja", { granularity: "word" });
-  const selectors = "p, li, td, th, blockquote, figcaption, h1, h2, h3, .diagram-step strong";
-  const particleEnd = /(から|まで|より|ので|のに|には|では|とは|へは|の|に|を|が|は|へ|と|で|も|や)$/;
-
-  root.querySelectorAll(selectors).forEach(element => {
-    if (element.closest("pre, code, button")) return;
-    const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
-    const textNodes = [];
-    while (walker.nextNode()) textNodes.push(walker.currentNode);
-
-    textNodes.forEach(node => {
-      const value = node.nodeValue || "";
-      if (!/[ぁ-んァ-ヶ一-龠]/.test(value) || value.trim().length < 5) return;
-
-      const chunks = [];
-      let chunk = "";
-      const segments = Array.from(segmenter.segment(value));
-      for (let index = 0; index < segments.length; index += 1) {
-        const item = segments[index];
-        const part = item.segment;
-        const nextPart = (segments[index + 1]?.segment || "").trim();
-        const compactBefore = chunk.replace(/\s/g, "").length;
-        const startsNewTerm = /^[一-龠ァ-ヶA-Za-z0-9]/.test(part.trim());
-        if (compactBefore >= 7 && particleEnd.test(chunk.trim()) && startsNewTerm) {
-          chunks.push(chunk);
-          chunk = "";
-        }
-        const nextContinuesPhrase = /^[ぁ-ん]/.test(nextPart) || /^(から|まで|より|ので|のに|には|では|とは|へは|の|に|を|が|は|へ|と|で|も|や|・)$/.test(nextPart);
-        chunk += part;
-
-        const compactLength = chunk.replace(/\s/g, "").length;
-        const punctuationBreak = /[。！？]/.test(part) || (/[、：；]/.test(part) && compactLength >= 5);
-        const phraseBreak = compactLength >= 8 && item.isWordLike && !particleEnd.test(chunk.trim()) && !nextContinuesPhrase;
-        if (punctuationBreak || phraseBreak) {
-          chunks.push(chunk);
-          chunk = "";
-        }
-      }
-      if (chunk) chunks.push(chunk);
-      for (let index = chunks.length - 1; index > 0; index -= 1) {
-        if (/^[、。！？：；・）」』】]/.test(chunks[index].trimStart())) {
-          chunks[index - 1] += chunks[index];
-          chunks.splice(index, 1);
-        }
-      }
-      if (chunks.length < 2) return;
-
-      const fragment = document.createDocumentFragment();
-      chunks.forEach(part => {
-        const span = document.createElement("span");
-        span.className = "jp-phrase";
-        span.textContent = part;
-        fragment.appendChild(span);
-      });
-      node.replaceWith(fragment);
-    });
-  });
-}
-
 function renderDiagram(bonus) {
   const steps = bonus.steps.map((step, index) => `
     <div class="diagram-step">
@@ -118,6 +57,25 @@ function renderDiagram(bonus) {
     <div class="diagram-flow">${steps}</div>
     <figcaption>${bonus.note}</figcaption>
   </figure>`;
+}
+
+function renderRecipeGallery() {
+  const recipes = [
+    ["手元で実演", "困りごと → 使う瞬間 → 使用後", "水滴を拭く手元から、乾いた面まで見せる", "assets/illustrations/recipe-hand-demo-v2.png", "クロスで水滴を拭く手元"],
+    ["大きさを比較", "商品全体 → 手と並べる → 収納", "バッグを手やノートと並べ、サイズ感を伝える", "assets/illustrations/recipe-size-compare-v2.png", "バッグとノートを並べた大きさ比較"],
+    ["画面を実演", "困った画面 → 1操作 → 完了", "指の動きと操作後の変化を同じ画角で見せる", "assets/illustrations/recipe-screen-demo-v2.png", "スマートフォンを指で操作する様子"],
+    ["A・Bを比較", "比較条件 → 同じ画角 → 向く人", "同じ量・同じ角度で違いをひとつ見せる", "assets/illustrations/recipe-ab-compare-v2.png", "2つの商品を同じ条件で比較する様子"],
+    ["写真＋声", "結果写真 → 使用場面 → 注意点", "3枚の写真に声を重ね、最後に注意点を添える", "assets/illustrations/recipe-photo-voice-v2.png", "写真とマイクを使った動画づくり"]
+  ];
+  return `<div class="recipe-gallery">${recipes.map((recipe, index) => `
+    <article class="recipe-card recipe-${index + 1}">
+      <img src="${recipe[3]}" alt="${recipe[4]}" loading="lazy" decoding="async">
+      <div class="recipe-card-body">
+        <div class="recipe-card-title"><span>0${index + 1}</span><h3>${recipe[0]}</h3></div>
+        <p class="recipe-cuts">${recipe[1]}</p>
+        <p>${recipe[2]}</p>
+      </div>
+    </article>`).join("")}</div>`;
 }
 
 function renderMarkdown(source) {
@@ -154,6 +112,12 @@ function renderMarkdown(source) {
     if (inCode) { code.push(line); continue; }
     if (!line.trim()) { closeList(); continue; }
 
+    if (line.trim() === "{{recipe-gallery}}") {
+      closeList();
+      html += renderRecipeGallery();
+      continue;
+    }
+
     if (line.startsWith("|")) {
       closeList();
       const rows = [];
@@ -164,7 +128,15 @@ function renderMarkdown(source) {
       i -= 1;
       const usable = rows.filter((row, idx) => idx !== 1 || !row.every(cell => /^:?-+:?$/.test(cell)));
       const labels = usable[0] || [];
-      html += '<div class="table-wrap"><table>' + usable.map((row, rowIndex) => `<tr>${row.map((cell, cellIndex) => rowIndex === 0 ? `<th>${inline(cell)}</th>` : `<td data-label="${escapeHtml(labels[cellIndex] || "項目")}">${inline(cell)}</td>`).join("")}</tr>`).join("") + "</table></div>";
+      const tableClass = labels.includes("商品A") ? "compare-table" : labels.includes("場面") && labels.includes("見えたもの") ? "scene-table" : "standard-table";
+      html += `<div class="table-wrap ${tableClass}"><table>` + usable.map((row, rowIndex) => `<tr>${row.map((cell, cellIndex) => {
+        if (rowIndex === 0) return `<th>${inline(cell)}</th>`;
+        const isRatingCell = tableClass === "compare-table" && cellIndex > 0 && !cell;
+        const value = isRatingCell
+          ? `<div class="rating-group" aria-label="${escapeHtml(labels[cellIndex])}の評価"><button type="button" aria-pressed="false">○</button><button type="button" aria-pressed="false">△</button><button type="button" aria-pressed="false">×</button></div>`
+          : (cell ? inline(cell) : '<span class="empty-cell">記入欄</span>');
+        return `<td data-label="${escapeHtml(labels[cellIndex] || "項目")}">${value}</td>`;
+      }).join("")}</tr>`).join("") + "</table></div>";
       continue;
     }
 
@@ -240,6 +212,66 @@ function attachPromptCopyButtons() {
       }
     });
   });
+  documentRoot.querySelectorAll(".rating-group button").forEach(button => {
+    button.addEventListener("click", () => {
+      button.parentElement.querySelectorAll("button").forEach(item => item.setAttribute("aria-pressed", String(item === button)));
+    });
+  });
+}
+
+function enhanceGenreQuiz() {
+  const questionHeadings = Array.from(documentRoot.querySelectorAll("h3")).filter(heading => /^Q[1-5]\./.test(heading.textContent.trim()));
+  const resultHeading = Array.from(documentRoot.querySelectorAll("h2")).find(heading => heading.textContent.trim() === "結果の見方");
+  if (questionHeadings.length !== 5 || !resultHeading) return;
+
+  const scoreboard = document.createElement("section");
+  scoreboard.className = "quiz-scoreboard";
+  scoreboard.innerHTML = `
+    <div class="quiz-score-head"><div><small>YOUR RESULT</small><h2>回答の多さを見える化</h2></div><button class="quiz-reset" type="button">選び直す</button></div>
+    <div class="score-cards">
+      <div class="score-card" data-score="A"><span>A</span><div><strong>0</strong><small>/ 5</small><em>暮らし・実演</em></div><i></i></div>
+      <div class="score-card" data-score="B"><span>B</span><div><strong>0</strong><small>/ 5</small><em>比較・整理</em></div><i></i></div>
+      <div class="score-card" data-score="C"><span>C</span><div><strong>0</strong><small>/ 5</small><em>経験・共感</em></div><i></i></div>
+    </div>
+    <p class="quiz-summary" aria-live="polite">5問に答えると、いちばん多いタイプがここに表示されます。</p>`;
+  resultHeading.before(scoreboard);
+
+  const updateScore = () => {
+    const counts = { A: 0, B: 0, C: 0 };
+    documentRoot.querySelectorAll(".quiz-choice[aria-pressed='true']").forEach(button => { counts[button.dataset.choice] += 1; });
+    const max = Math.max(counts.A, counts.B, counts.C);
+    const leaders = Object.keys(counts).filter(key => counts[key] === max && max > 0);
+    scoreboard.querySelectorAll(".score-card").forEach(card => {
+      const key = card.dataset.score;
+      card.querySelector("strong").textContent = counts[key];
+      card.querySelector("i").style.setProperty("--score", `${counts[key] * 20}%`);
+      card.classList.toggle("is-leading", leaders.includes(key));
+    });
+    const summary = scoreboard.querySelector(".quiz-summary");
+    if (!max) summary.textContent = "5問に答えると、いちばん多いタイプがここに表示されます。";
+    else if (leaders.length > 1) summary.textContent = `${leaders.join("・")}が同数です。今週いちばん撮りやすい方向から試してみましょう。`;
+    else summary.textContent = `${leaders[0]}がいちばん多い結果です。下の「結果の見方」で方向性を確認しましょう。`;
+  };
+
+  questionHeadings.forEach((heading, questionIndex) => {
+    const list = heading.nextElementSibling;
+    if (!list || list.tagName !== "UL") return;
+    list.classList.add("quiz-options");
+    list.dataset.question = questionIndex + 1;
+    Array.from(list.children).forEach(item => {
+      const match = item.textContent.trim().match(/^([ABC])：(.+)$/);
+      if (!match) return;
+      item.innerHTML = `<button class="quiz-choice" type="button" data-choice="${match[1]}" aria-pressed="false"><span>${match[1]}</span><em>${match[2]}</em></button>`;
+      item.querySelector("button").addEventListener("click", event => {
+        list.querySelectorAll(".quiz-choice").forEach(button => button.setAttribute("aria-pressed", String(button === event.currentTarget)));
+        updateScore();
+      });
+    });
+  });
+  scoreboard.querySelector(".quiz-reset").addEventListener("click", () => {
+    documentRoot.querySelectorAll(".quiz-choice").forEach(button => button.setAttribute("aria-pressed", "false"));
+    updateScore();
+  });
 }
 
 async function openBonus(index, updateHash = true) {
@@ -255,7 +287,7 @@ async function openBonus(index, updateHash = true) {
     if (!response.ok) throw new Error("load failed");
     const markdown = await response.text();
     documentRoot.innerHTML = renderDiagram(bonus) + renderMarkdown(markdown);
-    optimizeJapaneseLineBreaks(documentRoot);
+    if (bonus.id === "01") enhanceGenreQuiz();
     attachPromptCopyButtons();
     if (updateHash) history.replaceState(null, "", `#${bonus.id}`);
     if (updateHash) document.querySelector("#reader").scrollIntoView({ behavior: "smooth", block: "start" });

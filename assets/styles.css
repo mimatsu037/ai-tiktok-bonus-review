@@ -29,6 +29,7 @@ body {
   word-break: normal;
   overflow-wrap: break-word;
   hyphens: none;
+  overflow-x: hidden;
 }
 
 @supports (word-break: auto-phrase) {
@@ -38,6 +39,7 @@ body {
 p, li, td, th, figcaption, blockquote,
 .bonus-summary, .reader-hint, .diagram-step strong, .card-overlay em {
   text-wrap: pretty;
+  overflow-wrap: anywhere;
 }
 
 h1, h2, h3, .bonus-title, .card-overlay strong {
@@ -114,7 +116,7 @@ h1 .accent-line {
 .intro-copy > p + p { margin-top: .65rem; }
 .intro-copy .intro-lead { color: var(--text); font-size: clamp(1.15rem, 2vw, 1.45rem); font-weight: 900; line-height: 1.55; text-wrap: balance; }
 .phrase-line { display: inline; }
-.jp-phrase { display: inline-block; white-space: nowrap; }
+.jp-phrase { display: inline; white-space: normal; }
 
 .workspace {
   display: grid;
@@ -194,7 +196,8 @@ h1 .accent-line {
 }
 .text-button { border: 0; background: transparent; color: var(--paper-muted); }
 .reader-hint { align-self: center; color: #7b8092; font-size: .78rem; }
-.document { max-width: 780px; margin: 0 auto; }
+.document { max-width: 780px; margin: 0 auto; counter-reset: content-section; }
+.document > * { min-width: 0; max-width: 100%; }
 .bonus-diagram {
   position: relative;
   overflow: hidden;
@@ -274,6 +277,16 @@ h1 .accent-line {
 .document h1 { margin: 0 0 2rem; color: var(--ink); font-size: clamp(2rem, 4vw, 3.4rem); line-height: 1.18; letter-spacing: -.035em; }
 .bonus-heading span { display: block; margin-bottom: .35rem; color: #858090; font-size: .34em; font-weight: 900; letter-spacing: .08em; }
 .bonus-heading strong { display: block; font: inherit; }
+.document > h2 { display: flex; gap: .7rem; align-items: flex-start; counter-increment: content-section; }
+.document > h2::before {
+  content: counter(content-section, decimal-leading-zero);
+  flex: 0 0 auto;
+  margin-top: .08rem;
+  color: var(--pink);
+  font-size: .68rem;
+  font-weight: 900;
+  letter-spacing: .08em;
+}
 .document h2 { margin: 2.8rem 0 .9rem; padding-top: 1rem; border-top: 1px solid #d9dbe4; font-size: 1.35rem; line-height: 1.4; }
 .document h3 { margin: 2rem 0 .7rem; font-size: 1.08rem; }
 .document p, .document li { color: #51434b; }
@@ -382,6 +395,91 @@ h1 .accent-line {
 .document tr:last-child td { border-bottom: 0; }
 .document th:last-child, .document td:last-child { border-right: 0; }
 .document th { background: #f8efed; }
+.empty-cell { color: #a99aa2; font-size: .82rem; }
+.rating-group { display: flex; gap: .35rem; }
+.rating-group button {
+  display: grid;
+  width: 2.3rem;
+  height: 2.3rem;
+  place-items: center;
+  border: 1px solid #dfcfd3;
+  border-radius: 50%;
+  color: #765a69;
+  background: #fff;
+  font-weight: 900;
+}
+.rating-group button[aria-pressed="true"] { border-color: var(--cyan); color: #315f63; background: #dff3f1; box-shadow: 0 0 0 2px rgba(105,191,193,.18); }
+
+.quiz-options {
+  display: grid !important;
+  grid-template-columns: 1fr !important;
+  gap: .55rem !important;
+  margin: .7rem 0 1.6rem;
+  padding: 0 !important;
+}
+.quiz-options li { padding: 0 !important; border: 0 !important; background: transparent !important; }
+.quiz-choice {
+  display: grid;
+  grid-template-columns: 2.45rem minmax(0, 1fr);
+  gap: .75rem;
+  align-items: center;
+  width: 100%;
+  min-height: 3.7rem;
+  padding: .62rem .75rem;
+  border: 1px solid #eadbd7;
+  border-radius: 14px;
+  color: #5a4650;
+  background: #fff;
+  text-align: left;
+  transition: border-color .15s ease, background .15s ease, transform .15s ease;
+}
+.quiz-choice > span {
+  display: grid;
+  width: 2.35rem;
+  height: 2.35rem;
+  place-items: center;
+  border-radius: 50%;
+  color: #fff;
+  background: #9c7f8e;
+  font-weight: 900;
+}
+.quiz-choice em { min-width: 0; font-style: normal; font-weight: 700; line-height: 1.55; }
+.quiz-choice[aria-pressed="true"] { border-color: var(--cyan); background: #effaf9; box-shadow: 0 0 0 2px rgba(105,191,193,.16); transform: translateY(-1px); }
+.quiz-choice[aria-pressed="true"] > span { background: linear-gradient(135deg, var(--cyan), var(--pink)); }
+.quiz-scoreboard {
+  margin: 2rem 0 2.5rem;
+  padding: 1.15rem;
+  border: 1px solid #e3d5d9;
+  border-radius: 18px;
+  background: linear-gradient(145deg, #fff, #fff7f4);
+  box-shadow: 0 14px 34px rgba(100,66,79,.08);
+}
+.quiz-score-head { display: flex; justify-content: space-between; gap: 1rem; align-items: center; margin-bottom: .9rem; }
+.quiz-score-head small { color: var(--cyan); font-size: .68rem; font-weight: 900; letter-spacing: .14em; }
+.quiz-score-head h2 { margin: .15rem 0 0; padding: 0; border: 0; font-size: 1.15rem; }
+.quiz-reset { min-height: 38px; padding: .45rem .7rem; border: 1px solid #dbc8ce; border-radius: 9px; color: #765a69; background: #fff; font-size: .78rem; font-weight: 800; }
+.score-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: .65rem; }
+.score-card { position: relative; overflow: hidden; display: grid; grid-template-columns: 2.3rem 1fr; gap: .55rem; align-items: center; padding: .75rem; border: 1px solid #eadde1; border-radius: 13px; background: #fff; }
+.score-card > span { display: grid; width: 2.2rem; height: 2.2rem; place-items: center; border-radius: 50%; color: #fff; background: #9c7f8e; font-weight: 900; }
+.score-card strong { font-size: 1.35rem; }
+.score-card small { color: #9b8b93; font-size: .72rem; }
+.score-card em { display: block; color: #715f69; font-size: .72rem; font-style: normal; font-weight: 800; line-height: 1.35; }
+.score-card i { position: absolute; right: 0; bottom: 0; left: 0; height: 4px; background: linear-gradient(90deg, var(--cyan) var(--score, 0%), #f2e8e9 var(--score, 0%)); }
+.score-card.is-leading { border-color: var(--cyan); background: #effaf9; }
+.score-card.is-leading > span { background: linear-gradient(135deg, var(--cyan), var(--pink)); }
+.quiz-summary { margin: .9rem 0 0; color: #66525c; font-size: .88rem; font-weight: 700; }
+
+.recipe-gallery { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; margin: 1.25rem 0 2rem; }
+.recipe-card { overflow: hidden; border: 1px solid #e4d5d9; border-radius: 18px; background: #fff; box-shadow: 0 12px 28px rgba(100,66,79,.08); }
+.recipe-card:last-child { grid-column: 1 / -1; display: grid; grid-template-columns: 1fr 1fr; }
+.recipe-card > img { display: block; width: 100%; aspect-ratio: 4 / 3; object-fit: cover; }
+.recipe-card:last-child > img { height: 100%; aspect-ratio: auto; object-position: 28% center; }
+.recipe-card-body { padding: .85rem .95rem 1rem; }
+.recipe-card-title { display: flex; gap: .6rem; align-items: center; }
+.recipe-card-title span { color: var(--pink); font-size: .7rem; font-weight: 900; letter-spacing: .08em; }
+.recipe-card-title h3 { margin: 0; font-size: 1.02rem; }
+.recipe-card p { margin: .55rem 0 0; font-size: .88rem; line-height: 1.6; }
+.recipe-card .recipe-cuts { display: inline-block; padding: .28rem .5rem; border-radius: 999px; color: #386e70; background: #e5f5f4; font-size: .75rem; font-weight: 900; }
 .reader-footer { display: flex; justify-content: space-between; gap: 1rem; max-width: 780px; margin: 4rem auto 0; padding-top: 1.5rem; border-top: 1px solid #d9dbe4; }
 .pager { padding: .7rem 1rem; border: 0; background: var(--ink); color: white; }
 .pager:disabled { opacity: .3; cursor: default; }
@@ -399,11 +497,12 @@ footer { display: flex; justify-content: space-between; gap: 2rem; padding: 2rem
 @media (max-width: 560px) {
   .topbar { padding: 0 1rem; }
   .brand > span:last-child { font-size: .9rem; }
-  main { padding: 0 1rem 3rem; }
-  .intro { gap: 1.4rem; padding: 2.8rem 0 2.5rem; }
-  h1 { font-size: clamp(2.35rem, 13vw, 3.6rem); line-height: 1.1; letter-spacing: -.045em; }
+  main { padding: 0 .75rem 3rem; }
+  .intro { gap: 1.3rem; padding: 2.35rem .25rem 2.25rem; }
+  h1 { font-size: clamp(2.25rem, 10.4vw, 2.8rem); line-height: 1.13; letter-spacing: -.04em; }
+  .title-line { white-space: nowrap; text-wrap: nowrap; }
   .intro-copy > p { font-size: 1rem; }
-  .intro-copy .intro-lead { font-size: 1.13rem; }
+  .intro-copy .intro-lead { font-size: 1.05rem; line-height: 1.7; }
   .phrase-line { display: block; }
   .phrase-line + .phrase-line { margin-top: .15rem; }
   .bonus-list { grid-template-columns: 1fr; }
@@ -420,7 +519,7 @@ footer { display: flex; justify-content: space-between; gap: 2rem; padding: 2rem
     -webkit-line-clamp: 2;
   }
   .reader { border-radius: 17px; }
-  .reader-content { padding: 1rem; }
+  .reader-content { padding: .9rem; }
   .reader-toolbar { align-items: flex-start; flex-direction: column; }
   .reader-hint { display: none; }
   .diagram-flow { grid-template-columns: 1fr; }
@@ -429,8 +528,9 @@ footer { display: flex; justify-content: space-between; gap: 2rem; padding: 2rem
   .prompt-copy { width: 100%; }
   .document { font-size: 1rem; }
   .document p, .document li, .document blockquote { font-size: 1rem; line-height: 1.85; }
-  .document h1 { font-size: 2rem; line-height: 1.35; }
-  .document h2 { margin-top: 2.2rem; font-size: 1.25rem; line-height: 1.55; }
+  .document h1 { font-size: 1.7rem; line-height: 1.42; letter-spacing: -.025em; }
+  .bonus-heading span { font-size: .42em; }
+  .document h2 { margin-top: 2.2rem; font-size: 1.18rem; line-height: 1.55; }
   .document h3 { font-size: 1.08rem; line-height: 1.6; }
   .lesson-visual { margin: 1.35rem 0 1.7rem; border-radius: 15px; }
   .lesson-visual figcaption { padding: .75rem .85rem .85rem; font-size: .86rem; }
@@ -448,9 +548,7 @@ footer { display: flex; justify-content: space-between; gap: 2rem; padding: 2rem
     box-shadow: 0 7px 18px rgba(100,66,79,.06);
   }
   .document td {
-    display: grid;
-    grid-template-columns: minmax(6.5rem, .42fr) minmax(0, 1fr);
-    gap: .8rem;
+    display: block;
     min-width: 0;
     padding: .75rem .8rem;
     border-right: 0;
@@ -460,12 +558,26 @@ footer { display: flex; justify-content: space-between; gap: 2rem; padding: 2rem
   }
   .document td:last-child { border-bottom: 0; }
   .document td::before {
+    display: block;
     content: attr(data-label);
+    margin-bottom: .25rem;
     color: #7f6571;
-    font-size: .78rem;
+    font-size: .74rem;
     font-weight: 900;
-    line-height: 1.65;
+    line-height: 1.45;
   }
+  .document tr:not(:first-child) td:first-child { background: #fff8f6; }
+  .document tr:not(:first-child) td:first-child::before { color: #bc6d70; }
+  .rating-group { gap: .5rem; padding-top: .15rem; }
+  .rating-group button { width: 2.55rem; height: 2.55rem; }
+  .quiz-score-head { align-items: flex-start; }
+  .quiz-score-head h2 { font-size: 1.02rem; }
+  .score-cards { grid-template-columns: 1fr; }
+  .score-card { grid-template-columns: 2.4rem 1fr; }
+  .recipe-gallery { grid-template-columns: 1fr; }
+  .recipe-card:last-child { grid-column: auto; display: block; }
+  .recipe-card:last-child > img { height: auto; aspect-ratio: 4 / 3; object-position: 28% center; }
+  .recipe-card p { font-size: .92rem; }
   footer { display: block; padding: 1.5rem 1rem; }
 }
 
