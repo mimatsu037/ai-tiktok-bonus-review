@@ -405,6 +405,7 @@ h1 .accent-line {
 .jp-quote.is-long { white-space: normal; word-break: auto-phrase; }
 .inline-bind { display: inline-block; max-width: 100%; white-space: nowrap; }
 .sentence-break { display: block; }
+.manual-break { display: block; }
 .note-input {
   display: block;
   width: 100%;
