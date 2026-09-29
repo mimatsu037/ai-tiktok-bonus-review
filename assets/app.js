@@ -65,7 +65,7 @@ function renderRecipeGallery() {
     ["大きさを比較", "商品全体 → 手と並べる → 収納", "バッグを手やノートと並べ、サイズ感を伝える", "assets/illustrations/recipe-size-compare-v2.png", "バッグとノートを並べた大きさ比較"],
     ["画面を実演", "困った画面 → 1操作 → 完了", "指の動きと操作後の変化を同じ画角で見せる", "assets/illustrations/recipe-screen-demo-v2.png", "スマートフォンを指で操作する様子"],
     ["A・Bを比較", "比較条件 → 同じ画角 → 向く人", "同じ量・同じ角度で違いをひとつ見せる", "assets/illustrations/recipe-ab-compare-v2.png", "2つの商品を同じ条件で比較する様子"],
-    ["写真＋声", "結果写真 → 使用場面 → 注意点", "3枚の写真に声を重ね、最後に注意点を添える", "assets/illustrations/recipe-photo-voice-v2.png", "写真とマイクを使った動画づくり"]
+    ["写真＋声", "結果写真 → 使用場面 → 注意点", "3枚の写真に声を重ね、最後に注意点を添える", "assets/illustrations/recipe-photo-voice-v3.png", "同じ収納商品の結果・使用場面・注意点を3枚で見せる動画づくり"]
   ];
   return `<div class="recipe-gallery">${recipes.map((recipe, index) => `
     <article class="recipe-card recipe-${index + 1}">
@@ -85,6 +85,7 @@ function renderMarkdown(source) {
   let code = [];
   let codeKind = "text";
   let listType = null;
+  let tableIndex = 0;
 
   const closeList = () => {
     if (listType) html += `</${listType}>`;
@@ -129,12 +130,14 @@ function renderMarkdown(source) {
       const usable = rows.filter((row, idx) => idx !== 1 || !row.every(cell => /^:?-+:?$/.test(cell)));
       const labels = usable[0] || [];
       const tableClass = labels.includes("商品A") ? "compare-table" : labels.includes("場面") && labels.includes("見えたもの") ? "scene-table" : "standard-table";
+      const currentTableIndex = tableIndex;
+      tableIndex += 1;
       html += `<div class="table-wrap ${tableClass}"><table>` + usable.map((row, rowIndex) => `<tr>${row.map((cell, cellIndex) => {
         if (rowIndex === 0) return `<th>${inline(cell)}</th>`;
         const isRatingCell = tableClass === "compare-table" && cellIndex > 0 && !cell;
         const value = isRatingCell
           ? `<div class="rating-group" aria-label="${escapeHtml(labels[cellIndex])}の評価"><button type="button" aria-pressed="false">○</button><button type="button" aria-pressed="false">△</button><button type="button" aria-pressed="false">×</button></div>`
-          : (cell ? inline(cell) : '<span class="empty-cell">記入欄</span>');
+          : (cell ? inline(cell) : `<textarea class="note-input" rows="2" data-field="${currentTableIndex}-${rowIndex}-${cellIndex}" aria-label="${escapeHtml(labels[cellIndex] || "メモ")}の記入欄" placeholder="ここに入力"></textarea>`);
         return `<td data-label="${escapeHtml(labels[cellIndex] || "項目")}">${value}</td>`;
       }).join("")}</tr>`).join("") + "</table></div>";
       continue;
@@ -177,6 +180,82 @@ function renderMarkdown(source) {
   closeList();
   if (inCode) html += `<section class="copy-panel"><div class="copy-panel-head"><span><i aria-hidden="true">✦</i> コピペ用テキスト</span><button class="prompt-copy" type="button">テキストをコピー</button></div><pre><code>${escapeHtml(code.join("\n"))}</code></pre></section>`;
   return html;
+}
+
+function formatJapaneseText(root) {
+  const segmenter = typeof Intl !== "undefined" && Intl.Segmenter
+    ? new Intl.Segmenter("ja", { granularity: "word" })
+    : null;
+  const selector = "p, li, td, blockquote, figcaption, .diagram-step strong, .recipe-card h3";
+  const particles = new Set(["は", "が", "を", "に", "へ", "と", "で", "も", "の", "や", "か", "ね", "よ", "から", "まで", "より", "だけ", "なら", "ので", "のに", "ても"]);
+  const counters = /^(?:秒|分|時間|本|枚|日|週|問|種|つ|人|回|項目|カット)$/;
+  const shouldMerge = (previous, next) => {
+    const left = previous.replace(/[、。！？…）」』】〉]+$/g, "");
+    const right = next.replace(/^[「『【〈（]+/g, "");
+    if (/^[ァ-ヶー]+$/.test(left) && /^[ァ-ヶー]+$/.test(right)) return true;
+    if (/\d$/.test(left) && (counters.test(right) || /^[ァ-ヶー]+$/.test(right))) return true;
+    if (/[一-龠々]$/.test(left) && /^[ぁ-ん]+$/.test(right) && !particles.has(right)) return true;
+    if (/[ぁ-ん]$/.test(left) && /^[一-龠々]+$/.test(right) && `${left}${right}`.length <= 5) return true;
+    if (/^[一-龠々]$/.test(left) && /^[一-龠々]$/.test(right)) return true;
+    return false;
+  };
+  root.querySelectorAll(selector).forEach(element => {
+    if (element.closest("pre, code, textarea, button, .rating-group")) return;
+    const walker = document.createTreeWalker(element, NodeFilter.SHOW_TEXT);
+    const nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach(node => {
+      const value = node.nodeValue || "";
+      if (!/[ぁ-んァ-ヶ一-龠々ー。]/.test(value)) return;
+      const sentences = value.match(/[^。]*。|[^。]+/g) || [value];
+      const fragment = document.createDocumentFragment();
+      sentences.forEach((sentence, sentenceIndex) => {
+        const pieces = segmenter ? Array.from(segmenter.segment(sentence), item => item.segment) : [sentence];
+        const units = [];
+        pieces.forEach(piece => {
+          if (!piece.trim()) { units.push(piece); return; }
+          const previous = units.at(-1);
+          if (previous && previous.trim() && (/^[、。！？…）」』】〉]+$/.test(piece) || shouldMerge(previous, piece))) {
+            units[units.length - 1] += piece;
+          } else {
+            units.push(piece);
+          }
+        });
+        units.forEach(piece => {
+          if (!piece.trim()) {
+            fragment.appendChild(document.createTextNode(piece));
+            return;
+          }
+          const word = document.createElement("span");
+          word.className = "jp-word";
+          word.textContent = piece;
+          fragment.appendChild(word);
+        });
+        if (sentence.endsWith("。") && sentenceIndex < sentences.length - 1) {
+          const lineBreak = document.createElement("br");
+          lineBreak.className = "sentence-break";
+          fragment.appendChild(lineBreak);
+        }
+      });
+      node.replaceWith(fragment);
+    });
+  });
+}
+
+function attachEditableFields(bonusId) {
+  documentRoot.querySelectorAll(".note-input").forEach(field => {
+    const storageKey = `ai-tiktok-bonus-${bonusId}-${field.dataset.field}`;
+    const resize = () => {
+      field.style.height = "auto";
+      field.style.height = `${Math.max(72, field.scrollHeight)}px`;
+    };
+    try { field.value = localStorage.getItem(storageKey) || ""; } catch {}
+    field.addEventListener("input", () => {
+      try { localStorage.setItem(storageKey, field.value); } catch {}
+      resize();
+    });
+    resize();
+  });
 }
 
 async function copyText(text, successMessage) {
@@ -288,6 +367,8 @@ async function openBonus(index, updateHash = true) {
     const markdown = await response.text();
     documentRoot.innerHTML = renderDiagram(bonus) + renderMarkdown(markdown);
     if (bonus.id === "01") enhanceGenreQuiz();
+    formatJapaneseText(documentRoot);
+    attachEditableFields(bonus.id);
     attachPromptCopyButtons();
     if (updateHash) history.replaceState(null, "", `#${bonus.id}`);
     if (updateHash) document.querySelector("#reader").scrollIntoView({ behavior: "smooth", block: "start" });
