@@ -396,11 +396,14 @@ h1 .accent-line {
 .document tr:last-child td { border-bottom: 0; }
 .document th:last-child, .document td:last-child { border-right: 0; }
 .document th { background: #f8efed; }
-.jp-word {
-  display: inline-block;
-  max-width: 100%;
-  white-space: nowrap;
+.document :where(h1, h2, h3, p, li, th, td, blockquote, figcaption, .diagram-step strong) {
+  word-break: auto-phrase;
+  line-break: strict;
+  text-wrap: pretty;
 }
+.jp-quote { display: inline-block; max-width: 100%; white-space: nowrap; }
+.jp-quote.is-long { white-space: normal; word-break: auto-phrase; }
+.inline-bind { display: inline-block; max-width: 100%; white-space: nowrap; }
 .sentence-break { display: block; }
 .note-input {
   display: block;
