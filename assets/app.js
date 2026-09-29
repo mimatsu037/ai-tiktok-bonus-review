@@ -37,6 +37,7 @@ function escapeHtml(value) {
 
 function inline(text) {
   return escapeHtml(text)
+    .replace(/\[br\]/g, '<br class="manual-break">')
     .replace(/`([^`]+)`/g, "<code>$1</code>")
     .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
 }
@@ -316,7 +317,7 @@ function enhanceGenreQuiz() {
       <div class="score-card" data-score="B"><span>B</span><div><strong>0</strong><small>/ 5</small><em>比較・整理</em></div><i></i></div>
       <div class="score-card" data-score="C"><span>C</span><div><strong>0</strong><small>/ 5</small><em>経験・共感</em></div><i></i></div>
     </div>
-    <p class="quiz-summary" aria-live="polite">5問に答えると、いちばん多いタイプがここに表示されます。</p>`;
+    <p class="quiz-summary" aria-live="polite">5問に答えると、いちばん多いタイプが<br class="manual-break">ここに表示されます。</p>`;
   resultHeading.before(scoreboard);
 
   const updateScore = () => {
@@ -331,7 +332,7 @@ function enhanceGenreQuiz() {
       card.classList.toggle("is-leading", leaders.includes(key));
     });
     const summary = scoreboard.querySelector(".quiz-summary");
-    if (!max) summary.textContent = "5問に答えると、いちばん多いタイプがここに表示されます。";
+    if (!max) summary.innerHTML = '5問に答えると、いちばん多いタイプが<br class="manual-break">ここに表示されます。';
     else if (leaders.length > 1) summary.textContent = `${leaders.join("・")}が同数です。今週いちばん撮りやすい方向から試してみましょう。`;
     else summary.textContent = `${leaders[0]}がいちばん多い結果です。下の「結果の見方」で方向性を確認しましょう。`;
   };
@@ -344,7 +345,8 @@ function enhanceGenreQuiz() {
     Array.from(list.children).forEach(item => {
       const match = item.textContent.trim().match(/^([ABC])：(.+)$/);
       if (!match) return;
-      item.innerHTML = `<button class="quiz-choice" type="button" data-choice="${match[1]}" aria-pressed="false"><span>${match[1]}</span><em>${match[2]}</em></button>`;
+      const choiceHtml = item.innerHTML.replace(/^[ABC]：/, "");
+      item.innerHTML = `<button class="quiz-choice" type="button" data-choice="${match[1]}" aria-pressed="false"><span>${match[1]}</span><em>${choiceHtml}</em></button>`;
       item.querySelector("button").addEventListener("click", event => {
         list.querySelectorAll(".quiz-choice").forEach(button => button.setAttribute("aria-pressed", String(button === event.currentTarget)));
         updateScore();
