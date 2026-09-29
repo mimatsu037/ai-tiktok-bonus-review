@@ -278,6 +278,7 @@ h1 .accent-line {
 .bonus-heading span { display: block; margin-bottom: .35rem; color: #858090; font-size: .34em; font-weight: 900; letter-spacing: .08em; }
 .bonus-heading strong { display: block; font: inherit; }
 .document > h2 { display: flex; gap: .7rem; align-items: flex-start; counter-increment: content-section; }
+.document > h2 .heading-copy { display: block; min-width: 0; }
 .document > h2::before {
   content: counter(content-section, decimal-leading-zero);
   flex: 0 0 auto;

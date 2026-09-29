@@ -186,17 +186,25 @@ function formatJapaneseText(root) {
   const segmenter = typeof Intl !== "undefined" && Intl.Segmenter
     ? new Intl.Segmenter("ja", { granularity: "word" })
     : null;
-  const selector = "p, li, td, blockquote, figcaption, .diagram-step strong, .recipe-card h3";
-  const particles = new Set(["は", "が", "を", "に", "へ", "と", "で", "も", "の", "や", "か", "ね", "よ", "から", "まで", "より", "だけ", "なら", "ので", "のに", "ても"]);
+  const selector = "h1, h2, h3, p, li, th, td, blockquote, figcaption, .diagram-step strong";
+  const bindToPrevious = new Set([
+    "は", "が", "を", "に", "へ", "と", "で", "も", "の", "や", "か", "ね", "よ",
+    "から", "まで", "より", "だけ", "ほど", "くらい", "ぐらい", "など", "しか", "こそ", "さえ",
+    "なら", "ので", "のに", "ても", "でも", "って", "という", "たり", "だり",
+    "です", "ます", "でした", "ました", "ません", "ない", "なく", "たい", "た", "て", "だ"
+  ]);
   const counters = /^(?:秒|分|時間|本|枚|日|週|問|種|つ|人|回|項目|カット)$/;
   const shouldMerge = (previous, next) => {
     const left = previous.replace(/[、。！？…）」』】〉]+$/g, "");
     const right = next.replace(/^[「『【〈（]+/g, "");
+    if (/^[「『【〈（]+$/.test(previous)) return true;
+    if (bindToPrevious.has(right)) return true;
     if (/^[ァ-ヶー]+$/.test(left) && /^[ァ-ヶー]+$/.test(right)) return true;
     if (/\d$/.test(left) && (counters.test(right) || /^[ァ-ヶー]+$/.test(right))) return true;
-    if (/[一-龠々]$/.test(left) && /^[ぁ-ん]+$/.test(right) && !particles.has(right)) return true;
-    if (/[ぁ-ん]$/.test(left) && /^[一-龠々]+$/.test(right) && `${left}${right}`.length <= 5) return true;
-    if (/^[一-龠々]$/.test(left) && /^[一-龠々]$/.test(right)) return true;
+    if (/[一-龠々]$/.test(left) && /^[ぁ-ん]+$/.test(right)) return true;
+    if (/[ぁ-ん]$/.test(left) && /^[ぁ-ん]+$/.test(right) && `${left}${right}`.length <= 10) return true;
+    if (/[一-龠々]/.test(left) && /[ぁ-ん]$/.test(left) && /^[一-龠々]+$/.test(right) && `${left}${right}`.length <= 6) return true;
+    if (/^[一-龠々]+$/.test(left) && /^[一-龠々]+$/.test(right) && `${left}${right}`.length <= 6) return true;
     return false;
   };
   root.querySelectorAll(selector).forEach(element => {
@@ -215,17 +223,28 @@ function formatJapaneseText(root) {
         pieces.forEach(piece => {
           if (!piece.trim()) { units.push(piece); return; }
           const previous = units.at(-1);
-          if (previous && previous.trim() && (/^[、。！？…）」』】〉]+$/.test(piece) || shouldMerge(previous, piece))) {
+          if (previous && previous.trim() && (/^[、。！？…）」』】〉：:・→]+$/.test(piece) || shouldMerge(previous, piece))) {
             units[units.length - 1] += piece;
           } else {
             units.push(piece);
           }
         });
+        const phrases = [];
+        let phrase = "";
+        const visibleLength = value => Array.from(value.replace(/\s/g, "")).length;
+        const flushPhrase = () => {
+          if (phrase) phrases.push(phrase);
+          phrase = "";
+        };
         units.forEach(piece => {
-          if (!piece.trim()) {
-            fragment.appendChild(document.createTextNode(piece));
-            return;
-          }
+          if (!piece.trim()) { phrase += piece; return; }
+          const combined = phrase + piece;
+          if (phrase.trim() && visibleLength(phrase) >= 4 && visibleLength(combined) > 8) flushPhrase();
+          phrase += piece;
+        });
+        flushPhrase();
+        phrases.forEach(piece => {
+          if (!piece.trim()) return;
           const word = document.createElement("span");
           word.className = "jp-word";
           word.textContent = piece;
@@ -239,6 +258,12 @@ function formatJapaneseText(root) {
       });
       node.replaceWith(fragment);
     });
+    if (element.tagName === "H2" && element.parentElement === root && !element.querySelector(":scope > .heading-copy")) {
+      const headingCopy = document.createElement("span");
+      headingCopy.className = "heading-copy";
+      while (element.firstChild) headingCopy.appendChild(element.firstChild);
+      element.appendChild(headingCopy);
+    }
   });
 }
 
