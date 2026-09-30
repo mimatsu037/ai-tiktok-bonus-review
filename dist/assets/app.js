@@ -364,6 +364,7 @@ async function openBonus(index, updateHash = true) {
   const bonus = bonuses[index];
   if (!bonus) return;
   currentIndex = index;
+  documentRoot.dataset.bonus = bonus.id;
   documentRoot.innerHTML = "<p>読み込み中です…</p>";
   document.querySelectorAll(".bonus-card").forEach((card, i) => card.classList.toggle("active", i === index));
   prevButton.disabled = index === 0;
