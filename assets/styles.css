@@ -559,6 +559,11 @@ footer { display: flex; justify-content: space-between; gap: 2rem; padding: 2rem
   .prompt-copy { width: 100%; }
   .document { font-size: 1rem; }
   .document p, .document li, .document blockquote { font-size: 1rem; line-height: 1.85; }
+  .document[data-bonus="08"] h2 + ul li {
+    padding: .75rem .8rem;
+    font-size: .875rem;
+    line-height: 1.7;
+  }
   .document h1 { font-size: 1.7rem; line-height: 1.42; letter-spacing: -.025em; }
   .bonus-heading span { font-size: .42em; }
   .bonus-heading.compact-title strong { font-size: .87em; letter-spacing: -.04em; white-space: nowrap; }
